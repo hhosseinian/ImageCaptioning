@@ -13,15 +13,19 @@ This project aims to develop a neural network architecture for automatically gen
 - [Acknowledgments](#acknowledgments)
 
 ## Prerequisites
-Before you can run the project, you need to ensure you have the following prerequisites installed:
-- Python (>=3.6)
-- PyTorch (>=1.0)
-- torchvision
-- NumPy
-- Matplotlib
-- Jupyter Notebook (for running the provided notebooks)
+Before running the project, ensure you have the following prerequisites installed:
 
-You can install most of these dependencies using `pip` or `conda`.
+    * Python (>=3.6)
+    * PyTorch (>=0.4)
+    * torchvision
+    * NumPy
+    * Matplotlib
+    * Jupyter Notebook (for running the provided notebooks)
+
+You can install most of these dependencies using pip or conda.
+
+**Important**: GPU mode must be enabled for this project. Training a fully functional model on a GPU is expected to take between 5-12 hours. It is recommended to monitor early patterns in loss during the first hour of training as you make adjustments to your model. This approach helps minimize the time spent on extensive training until you are ready to train your final model.
+
 
 ## Project Structure
 The project directory is organized as follows:
