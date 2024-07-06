@@ -1,7 +1,7 @@
 # Image Captioning Project
 
 ## Overview
-This project aims to develop a neural network architecture for automatically generating captions from images. The system leverages Convolutional Neural Networks (CNNs) to process images and Recurrent Neural Networks (RNNs) to generate descriptive text captions. The Microsoft Common Objects in Context (MS COCO) dataset is utilized for training the model. This README provides a comprehensive overview of the project, including setup instructions and usage guidelines.
+This project aims to develop a neural network architecture for automatically generating captions from images based on the paper [Show and Tell: A Neural Image Caption Generator](https://arxiv.org/pdf/1411.4555.pdf). The system leverages Convolutional Neural Networks (CNNs) to process images and Recurrent Neural Networks (RNNs) to generate descriptive text captions. The Microsoft Common Objects in Context ([MS COCO](http://cocodataset.org/#home)) dataset is utilized for training the model. This README provides a comprehensive overview of the project, including setup instructions and usage guidelines.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -34,7 +34,6 @@ The project directory is organized as follows:
 - `train.ipynb`: Jupyter Notebook for training the image captioning model.
 - `inference.ipynb`: Jupyter Notebook for generating captions using the trained model.
 - `models/`: This folder is used to save the trained model checkpoints.
-- `data/`: This folder contains the dataset, including images and caption data.
 
 ## Usage
 ### Training
