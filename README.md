@@ -34,7 +34,6 @@ The project directory is organized as follows:
 - `train.ipynb`: Jupyter Notebook for training the image captioning model.
 - `inference.ipynb`: Jupyter Notebook for generating captions using the trained model.
 - `models/`: This folder is used to save the trained model checkpoints.
-- `data/`: This folder contains the dataset, including images and caption data.
 
 ## Usage
 ### Training
