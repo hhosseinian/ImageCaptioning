@@ -1,7 +1,7 @@
 # Image Captioning Project
 
 ## Overview
-This project aims to develop a neural network architecture for automatically generating captions from images. The system leverages Convolutional Neural Networks (CNNs) to process images and Recurrent Neural Networks (RNNs) to generate descriptive text captions. The Microsoft Common Objects in Context (MS COCO) dataset is utilized for training the model. This README provides a comprehensive overview of the project, including setup instructions and usage guidelines.
+This project aims to develop a neural network architecture for automatically generating captions from images. The system leverages Convolutional Neural Networks (CNNs) to process images and Recurrent Neural Networks (RNNs) to generate descriptive text captions. The Microsoft Common Objects in Context ([MS COCO](http://cocodataset.org/#home)) dataset is utilized for training the model. This README provides a comprehensive overview of the project, including setup instructions and usage guidelines.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
