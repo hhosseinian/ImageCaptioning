@@ -1,7 +1,7 @@
 # Image Captioning Project
 
 ## Overview
-This project aims to develop a neural network architecture for automatically generating captions from images based on the paper [Show and Tell: A Neural Image Caption Generator](https://arxiv.org/pdf/1411.4555.pdf). The system leverages Convolutional Neural Networks (CNNs) to process images and Recurrent Neural Networks (RNNs) to generate descriptive text captions. The Microsoft Common Objects in Context ([MS COCO](http://cocodataset.org/#home)) dataset is utilized for training the model. This README provides a comprehensive overview of the project, including setup instructions and usage guidelines.
+This project aims to develop a neural network architecture for automatically generating captions from images based on the paper [Show and Tell: A Neural Image Caption Generator](https://arxiv.org/pdf/1411.4555.pdf). The system leverages Convolutional Neural Networks (CNNs) to process images and Recurrent Neural Networks (RNNs) to generate descriptive text captions. The model utilizes a CNN to encode the image into a fixed-length vector representation and an RNN to decode this vector into a descriptive sentence. The Microsoft Common Objects in Context ([MS COCO](http://cocodataset.org/#home)) dataset is utilized for training the model. This README provides detailed instructions on setting up and running the project, highlighting the integration of advanced computer vision and natural language processing techniques.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
