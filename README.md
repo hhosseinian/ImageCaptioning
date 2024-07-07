@@ -29,11 +29,7 @@ You can install most of these dependencies using pip or conda.
 
 ## Project Structure
 The project directory is organized as follows:
-- `data_loader.py`: Defines data loaders for loading image and caption data.
-- `model.py`: Contains the architecture for the CNN encoder and RNN decoder.
-- `train.ipynb`: Jupyter Notebook for training the image captioning model.
-- `inference.ipynb`: Jupyter Notebook for generating captions using the trained model.
-- `models/`: This folder is used to save the trained model checkpoints.
+- **0_Dataset.ipynb**: This notebook is for exploring the Microsoft COCO dataset that will be used for training the image-capturing architecture. You can explore how to Initialize the COCO API and print a sample image, along with its five corresponding captions.
 
 ## Usage
 ### Training
