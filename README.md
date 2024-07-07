@@ -29,7 +29,10 @@ You can install most of these dependencies using pip or conda.
 
 ## Project Structure
 The project directory is organized as follows:
-- **0_Dataset.ipynb**: This notebook is for exploring the Microsoft COCO dataset that will be used for training the image-capturing architecture. You can explore how to Initialize the COCO API and print a sample image, along with its five corresponding captions.
+- **0_Dataset.ipynb**: This notebook is for exploring the Microsoft COCO dataset that will be used for training the image-capturing architecture. You can explore how to Initialize the COCO API and print a sample image, along with its five corresponding captions. You can read more about the dataset on ([MS COCO](http://cocodataset.org/#home)) website or in the [research paper](https://arxiv.org/pdf/1405.0312).
+- **1_Preliminaries**: In this notebook, we load and pre-process data from the COCO dataset. We further design a CNN-RNN architecture/model for automatically generating image captions. 
+- **2_Training**: In this notebook, we train the CNN_RNN model developed in previous step. 
+- **3_Inference**: In this notebook, we use the trained model to generate captions for images in the test dataset.
 
 ## Usage
 ### Training
