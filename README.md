@@ -34,26 +34,6 @@ The project directory is organized as follows:
 - **2_Training**: In this notebook, we train the CNN_RNN model developed in previous step. 
 - **3_Inference**: In this notebook, we use the trained model to generate captions for images in the test dataset.
 
-## Usage
-### Training
-1. Prepare your dataset: You can use your own image dataset or a pre-existing one. Ensure that you have image files and corresponding captions in a suitable format.
-
-2. Set the configuration: In the `train.ipynb` notebook, set the hyperparameters, dataset paths, and other configurations as needed.
-
-3. Train the model: Execute the cells in the `train.ipynb` notebook to train the image captioning model. The trained model will be saved in the `models/` directory.
-
-### Inference
-1. Set up the environment: Ensure that you have the required libraries and the trained model from the training step.
-
-2. Configure the inference: In the `inference.ipynb` notebook, set the paths to the trained model and specify the image(s) for which you want to generate captions.
-
-3. Generate captions: Execute the cells in the `inference.ipynb` notebook to generate captions for the selected image(s).
-
-## Results
-You can find the results of the image captioning in the `results/` directory. This directory contains the generated captions for your selected images.
-
 ## Acknowledgments
 - This project is part of the [Computer Vision Nanodegree](https://www.udacity.com/course/computer-vision-nanodegree--nd891) program from Udacity.
 - The project's architecture and data loader are based on research papers and materials provided by Udacity.
-
-Feel free to customize this README to include any additional information specific to your project or add sections as needed. Good luck with your image captioning project!
