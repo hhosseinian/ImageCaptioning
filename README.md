@@ -34,18 +34,18 @@ The project directory is organized as follows:
 - **2_Training**: In this notebook, we train the CNN_RNN model developed in previous step. 
 - **3_Inference**: In this notebook, we use the trained model to generate captions for images in the test dataset.
 
-## Usage
+## Usage (Under revision)
 ### Training
   - Describe different steps of using 0_dataset.ipynb, 1_Preliminaries.ipynb, and 2_Training.ipynb for how to simply train the network and what to expect.
   - How to develop the model
   - Some suggestions for modifying the model and how to do that in your project
   - What we expect by changing the hyperparameters and what is the trend of change?
-### Inference
+### Inference (Under revision)
   - Describe how they could see the model in practice works
   - How to put their model in the loop for infering
   - How they can evaluate their model performance
 
-## Results
+## Results (Under revision)
   -provide results for your specific example.
   -provide result when you change different hyperparameters
 
