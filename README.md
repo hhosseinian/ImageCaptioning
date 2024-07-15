@@ -34,6 +34,21 @@ The project directory is organized as follows:
 - **2_Training**: In this notebook, we train the CNN_RNN model developed in previous step. 
 - **3_Inference**: In this notebook, we use the trained model to generate captions for images in the test dataset.
 
+## Usage
+### Training
+  - Describe different steps of using 0_dataset.ipynb, 1_Preliminaries.ipynb, and 2_Training.ipynb for how to simply train the network and what to expect.
+  - How to develop the model
+  - Some suggestions for modifying the model and how to do that in your project
+  - What we expect by changing the hyperparameters and what is the trend of change?
+### Inference
+  - Describe how they could see the model in practice works
+  - How to put their model in the loop for infering
+  - How they can evaluate their model performance
+
+## Results
+  -provide results for your specific example.
+  -provide result when you change different hyperparameters
+
 ## Acknowledgments
 - This project is part of the [Computer Vision Nanodegree](https://www.udacity.com/course/computer-vision-nanodegree--nd891) program from Udacity.
 - The project's architecture and data loader are based on research papers and materials provided by Udacity.
