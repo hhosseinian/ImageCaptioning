@@ -76,34 +76,8 @@ Steps for inference:
   -provide results when you change different hyperparameters
 
 
-## Troubleshooting `ModuleNotFoundError` for `pycocotools` in running **0_Dataset.ipynb**
-
-If you encounter a `ModuleNotFoundError` for `pycocotools` in your Python environment, follow these steps to resolve the issue:
-
-### 1. Install `pycocotools`
-
-First, ensure that `pycocotools` is installed in your Python environment. You can do this using pip:
-
-```bash
-pip install pycocotools
-
-After installation, verify that pycocotools is installed correctly and can be imported without errors:
-
-import pycocotools
-
-If no errors occur, the package is installed correctly.
-
-Verify Module Structure
-
-Ensure that the structure of the pycocotools module is correct. It should have a coco.py file within a directory named pycocotools. The import statement from pycocotools.coco import COCO expects this structure to be present.
-5. Restart Kernel or Script Execution
-
-If you installed pycocotools after starting your Python session or script, restart the Python kernel or script execution to ensure that the changes take effect.
-
-By following these steps, you should be able to resolve the ModuleNotFoundError for pycocotools and successfully use the package in your Python projects.
-
-
-Feel free to adjust the paths and instructions as per your specific setup and requirements. This Markdown can be directly added to your GitHub README file to help others troubleshoot similar issues with `pycocotools`.
+## Troubleshooting
+For typical troubleshooting please check the Wiki page of the project.
 
 
 ## Acknowledgments
