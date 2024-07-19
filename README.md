@@ -34,20 +34,46 @@ The project directory is organized as follows:
 - **2_Training**: In this notebook, we train the CNN_RNN model developed in previous step. 
 - **3_Inference**: In this notebook, we use the trained model to generate captions for images in the test dataset.
 
-## Usage (Under revision)
+## Usage
 ### Training
-  - Describe different steps of using 0_dataset.ipynb, 1_Preliminaries.ipynb, and 2_Training.ipynb for how to simply train the network and what to expect.
-  - How to develop the model
-  - Some suggestions for modifying the model and how to do that in your project
-  - What we expect by changing the hyperparameters and what is the trend of change?
-### Inference (Under revision)
-  - Describe how they could see the model in practice works
-  - How to put their model in the loop for infering
-  - How they can evaluate their model performance
+
+To train the network, follow these steps:
+
+    - 0_Dataset.ipynb:
+        Load and explore the MS COCO dataset.
+        Initialize the COCO API and print a sample image with its corresponding captions.
+    - 1_Preliminaries.ipynb:
+        Pre-process the data from the COCO dataset.
+        Design and develop the CNN-RNN model.
+    - 2_Training.ipynb:
+        Train the CNN-RNN model using the pre-processed data.
+        Adjust model parameters as needed and monitor loss patterns.
+
+### Suggestions for modifying the model:
+
+    Experiment with different architectures for the CNN and RNN components.
+    Try varying the size of the hidden layers or the number of layers in the RNN.
+    Adjust hyperparameters such as learning rate, batch size, and number of epochs to observe their impact on model performance.
+
+### Inference
+
+To see the model in action:
+
+    - 3_Inference.ipynb:
+        Use the trained model to generate captions for images in the test dataset.
+        Evaluate model performance by comparing generated captions to the actual captions.
+
+Steps for inference:
+
+    - Load the trained model.
+    - Pass a test image through the model to generate a caption.
+    - Compare the generated caption with the actual caption to evaluate performance.
+
+
 
 ## Results (Under revision)
   -provide results for your specific example.
-  -provide result when you change different hyperparameters
+  -provide results when you change different hyperparameters
 
 
 ## Troubleshooting `ModuleNotFoundError` for `pycocotools` in running **0_Dataset.ipynb**
