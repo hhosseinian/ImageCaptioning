@@ -78,7 +78,7 @@ Steps for inference:
 
 ## Troubleshooting
 For typical troubleshooting please check the Wiki page of the project.
-
+- List of touble shooting will be updatd in the WiKi page. pleas make sure to email me (hhosseinianfar@gmail.com) or submit an issue so I can wok on it. 
 
 ## Acknowledgments
 - This project is part of the [Computer Vision Nanodegree](https://www.udacity.com/course/computer-vision-nanodegree--nd891) program from Udacity.
