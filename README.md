@@ -72,8 +72,9 @@ Steps for inference:
 
 
 ## Results (Under revision)
-  -provide results for your specific example.
-  -provide results when you change different hyperparameters
+  - provide results for your specific example.
+  - provide results when you change different hyperparameters
+  - Refer to some other projects from other githubs
 
 
 ## Troubleshooting
