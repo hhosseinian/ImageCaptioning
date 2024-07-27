@@ -22,6 +22,7 @@ Before running the project, ensure you have the following prerequisites installe
     * Matplotlib
     * Jupyter Notebook (for running the provided notebooks)
     * scikit-image
+    * nltk
 
 You can install most of these dependencies using pip or conda.
 
