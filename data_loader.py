@@ -1,298 +1,152 @@
-<!DOCTYPE HTML>
-<html>
+import nltk
+import os
+import torch
+import torch.utils.data as data
+from vocabulary import Vocabulary
+from PIL import Image
+from pycocotools.coco import COCO
+import numpy as np
+from tqdm import tqdm
+import random
+import json
 
-<head>
-    <meta charset="utf-8">
-
-    <title>data_loader.py (editing)</title>
-    <link id="favicon" rel="shortcut icon" type="image/x-icon" href="/static/base/images/favicon-file.ico?v=f9f0a782d7d67b3a57bf7dce251d771b405c7890604576ec8b9a621a39d7670f6b43ffabef1e566f1cd741ee302e15977d9e1cf60bbacebafe75787b9916415c">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link rel="stylesheet" href="/static/components/jquery-ui/dist/themes/smoothness/jquery-ui.min.css?v=32f9dcde0cd9843f2b66d34c1c9928b59a5d7ef007ba7a6a6a790b3e78f7857a698444d7a716dfaf8fa834c3b3175efd258bbc07cfc4aabb86769b07e5f358c3" type="text/css" />
-    <link rel="stylesheet" href="/static/components/jquery-typeahead/dist/jquery.typeahead.min.css?v=5edf53bf6bb9c3b1ddafd8594825a7e2ed621f19423e569c985162742f63911c09eba2c529f8fb47aebf27fafdfe287d563347f58c1126b278189a18871b6a9a" type="text/css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+def get_loader(transform,
+               mode='train',
+               batch_size=1,
+               vocab_threshold=None,
+               vocab_file='./vocab.pkl',
+               start_word="<start>",
+               end_word="<end>",
+               unk_word="<unk>",
+               vocab_from_file=True,
+               num_workers=0,
+               cocoapi_loc='/opt'):
+    """Returns the data loader.
+    Args:
+      transform: Image transform.
+      mode: One of 'train' or 'test'.
+      batch_size: Batch size (if in testing mode, must have batch_size=1).
+      vocab_threshold: Minimum word count threshold.
+      vocab_file: File containing the vocabulary. 
+      start_word: Special word denoting sentence start.
+      end_word: Special word denoting sentence end.
+      unk_word: Special word denoting unknown words.
+      vocab_from_file: If False, create vocab from scratch & override any existing vocab_file.
+                       If True, load vocab from from existing vocab_file, if it exists.
+      num_workers: Number of subprocesses to use for data loading 
+      cocoapi_loc: The location of the folder containing the COCO API: https://github.com/cocodataset/cocoapi
+    """
     
+    assert mode in ['train', 'test'], "mode must be one of 'train' or 'test'."
+    if vocab_from_file==False: assert mode=='train', "To generate vocab from captions file, must be in training mode (mode='train')."
+
+    # Based on mode (train, val, test), obtain img_folder and annotations_file.
+    if mode == 'train':
+        if vocab_from_file==True: assert os.path.exists(vocab_file), "vocab_file does not exist.  Change vocab_from_file to False to create vocab_file."
+        img_folder = os.path.join(cocoapi_loc, 'cocoapi/images/train2014/')
+        annotations_file = os.path.join(cocoapi_loc, 'cocoapi/annotations/captions_train2014.json')
+    if mode == 'test':
+        assert batch_size==1, "Please change batch_size to 1 if testing your model."
+        assert os.path.exists(vocab_file), "Must first generate vocab.pkl from training data."
+        assert vocab_from_file==True, "Change vocab_from_file to True."
+        img_folder = os.path.join(cocoapi_loc, 'cocoapi/images/test2014/')
+        annotations_file = os.path.join(cocoapi_loc, 'cocoapi/annotations/image_info_test2014.json')
+
+    # COCO caption dataset.
+    dataset = CoCoDataset(transform=transform,
+                          mode=mode,
+                          batch_size=batch_size,
+                          vocab_threshold=vocab_threshold,
+                          vocab_file=vocab_file,
+                          start_word=start_word,
+                          end_word=end_word,
+                          unk_word=unk_word,
+                          annotations_file=annotations_file,
+                          vocab_from_file=vocab_from_file,
+                          img_folder=img_folder)
+
+    if mode == 'train':
+        # Randomly sample a caption length, and sample indices with that length.
+        indices = dataset.get_train_indices()
+        # Create and assign a batch sampler to retrieve a batch with the sampled indices.
+        initial_sampler = data.sampler.SubsetRandomSampler(indices=indices)
+        # data loader for COCO dataset.
+        data_loader = data.DataLoader(dataset=dataset, 
+                                      num_workers=num_workers,
+                                      batch_sampler=data.sampler.BatchSampler(sampler=initial_sampler,
+                                                                              batch_size=dataset.batch_size,
+                                                                              drop_last=False))
+    else:
+        data_loader = data.DataLoader(dataset=dataset,
+                                      batch_size=dataset.batch_size,
+                                      shuffle=True,
+                                      num_workers=num_workers)
+
+    return data_loader
+
+class CoCoDataset(data.Dataset):
     
-<link rel="stylesheet" href="/static/components/codemirror/lib/codemirror.css?v=a545ad5e21a51420a7cb40234688eef087a5cf3798f64d7750291a8be0e9c760b8a1c9cbbbdcaa6470f2f385caa59e816f2640f609d29147f4762e27f69709e6">
-<link rel="stylesheet" href="/static/components/codemirror/addon/dialog/dialog.css?v=e7f5db4afaccf8a00c10d62c3693642323d3fcf17604a4797803df04e4f144a944dc646c2fda20548df538ada775570127b2a15403996a171ced1769697f3ee4">
+    def __init__(self, transform, mode, batch_size, vocab_threshold, vocab_file, start_word, 
+        end_word, unk_word, annotations_file, vocab_from_file, img_folder):
+        self.transform = transform
+        self.mode = mode
+        self.batch_size = batch_size
+        self.vocab = Vocabulary(vocab_threshold, vocab_file, start_word,
+            end_word, unk_word, annotations_file, vocab_from_file)
+        self.img_folder = img_folder
+        if self.mode == 'train':
+            self.coco = COCO(annotations_file)
+            self.ids = list(self.coco.anns.keys())
+            print('Obtaining caption lengths...')
+            all_tokens = [nltk.tokenize.word_tokenize(str(self.coco.anns[self.ids[index]]['caption']).lower()) for index in tqdm(np.arange(len(self.ids)))]
+            self.caption_lengths = [len(token) for token in all_tokens]
+        else:
+            test_info = json.loads(open(annotations_file).read())
+            self.paths = [item['file_name'] for item in test_info['images']]
+        
+    def __getitem__(self, index):
+        # obtain image and caption if in training mode
+        if self.mode == 'train':
+            ann_id = self.ids[index]
+            caption = self.coco.anns[ann_id]['caption']
+            img_id = self.coco.anns[ann_id]['image_id']
+            path = self.coco.loadImgs(img_id)[0]['file_name']
 
-    <link rel="stylesheet" href="/static/style/style.min.css?v=e1ab1c38b672063a6541baf468c83345cd0f509729783ec9b7ccb64073004f5f056110c82c28aefbf3dbf32e0e040f05b8f0420bc411b669ed3d4f07511812ca" type="text/css"/>
-    
+            # Convert image to tensor and pre-process using transform
+            image = Image.open(os.path.join(self.img_folder, path)).convert('RGB')
+            image = self.transform(image)
 
-    <link rel="stylesheet" href="/custom/custom.css" type="text/css" />
-    <script src="/static/components/es6-promise/promise.min.js?v=bea335d74136a63ae1b5130f5ac9a50c6256a5f435e6e09fef599491a84d834a8b0f011ca3eaaca3b4ab6a2da2d3e1191567a2f171e60da1d10e5b9d52f84184" type="text/javascript" charset="utf-8"></script>
-    <script src="/static/components/react/react.production.min.js?v=9a0aaf84a316c8bedd6c2ff7d5b5e0a13f8f84ec02442346cba0b842c6c81a6bf6176e64f3675c2ebf357cb5bb048e0b527bd39377c95681d22468da3d5de735" type="text/javascript"></script>
-    <script src="/static/components/react/react-dom.production.min.js?v=6fc58c1c4736868ff84f57bd8b85f2bdb985993a9392718f3b4af4bfa10fb4efba2b4ddd68644bd2a8daf0619a3844944c9c43f8528364a1aa6fc01ec1b8ae84" type="text/javascript"></script>
-    <script src="/static/components/create-react-class/index.js?v=894ad57246e682b4cfbe7cd5e408dcd6b38d06af4de4f3425991e2676fdc2ef1732cbd19903104198878ae77de12a1996de3e7da3a467fb226bdda8f4618faec" type="text/javascript"></script>
-    <script src="/static/components/requirejs/require.js?v=d37b48bb2137faa0ab98157e240c084dd5b1b5e74911723aa1d1f04c928c2a03dedf922d049e4815f7e5a369faa2e6b6a1000aae958b7953b5cc60411154f593" type="text/javascript" charset="utf-8"></script>
-    <script>
-      require.config({
-          
-          urlArgs: "v=20240727060513",
-          
-          baseUrl: '/static/',
-          paths: {
-            'auth/js/main': 'auth/js/main.min',
-            custom : '/custom',
-            nbextensions : '/nbextensions',
-            kernelspecs : '/kernelspecs',
-            underscore : 'components/underscore/underscore-min',
-            backbone : 'components/backbone/backbone-min',
-            jed: 'components/jed/jed',
-            jquery: 'components/jquery/jquery.min',
-            json: 'components/requirejs-plugins/src/json',
-            text: 'components/requirejs-text/text',
-            bootstrap: 'components/bootstrap/dist/js/bootstrap.min',
-            bootstraptour: 'components/bootstrap-tour/build/js/bootstrap-tour.min',
-            'jquery-ui': 'components/jquery-ui/dist/jquery-ui.min',
-            moment: 'components/moment/min/moment-with-locales',
-            codemirror: 'components/codemirror',
-            termjs: 'components/xterm.js/xterm',
-            typeahead: 'components/jquery-typeahead/dist/jquery.typeahead.min',
-          },
-          map: { // for backward compatibility
-              "*": {
-                  "jqueryui": "jquery-ui",
-              }
-          },
-          shim: {
-            typeahead: {
-              deps: ["jquery"],
-              exports: "typeahead"
-            },
-            underscore: {
-              exports: '_'
-            },
-            backbone: {
-              deps: ["underscore", "jquery"],
-              exports: "Backbone"
-            },
-            bootstrap: {
-              deps: ["jquery"],
-              exports: "bootstrap"
-            },
-            bootstraptour: {
-              deps: ["bootstrap"],
-              exports: "Tour"
-            },
-            "jquery-ui": {
-              deps: ["jquery"],
-              exports: "$"
-            }
-          },
-          waitSeconds: 30,
-      });
+            # Convert caption to tensor of word ids.
+            tokens = nltk.tokenize.word_tokenize(str(caption).lower())
+            caption = []
+            caption.append(self.vocab(self.vocab.start_word))
+            caption.extend([self.vocab(token) for token in tokens])
+            caption.append(self.vocab(self.vocab.end_word))
+            caption = torch.Tensor(caption).long()
 
-      require.config({
-          map: {
-              '*':{
-                'contents': 'services/contents',
-              }
-          }
-      });
+            # return pre-processed image and caption tensors
+            return image, caption
 
-      // error-catching custom.js shim.
-      define("custom", function (require, exports, module) {
-          try {
-              var custom = require('custom/custom');
-              console.debug('loaded custom.js');
-              return custom;
-          } catch (e) {
-              console.error("error loading custom.js", e);
-              return {};
-          }
-      })
+        # obtain image if in test mode
+        else:
+            path = self.paths[index]
 
-      // error-catching custom-preload.js shim.
-      define("custom-preload", function (require, exports, module) {
-          try {
-              var custom = require('custom/custom-preload');
-              console.debug('loaded custom-preload.js');
-              return custom;
-          } catch (e) {
-              console.error("error loading custom-preload.js", e);
-              return {};
-          }
-      })
+            # Convert image to tensor and pre-process using transform
+            PIL_image = Image.open(os.path.join(self.img_folder, path)).convert('RGB')
+            orig_image = np.array(PIL_image)
+            image = self.transform(PIL_image)
 
-    document.nbjs_translations = {"domain": "nbjs", "locale_data": {"nbjs": {"": {"domain": "nbjs"}}}};
-    document.documentElement.lang = navigator.language.toLowerCase();
-    </script>
+            # return original image and pre-processed image tensor
+            return orig_image, image
 
-    
-    
+    def get_train_indices(self):
+        sel_length = np.random.choice(self.caption_lengths)
+        all_indices = np.where([self.caption_lengths[i] == sel_length for i in np.arange(len(self.caption_lengths))])[0]
+        indices = list(np.random.choice(all_indices, size=self.batch_size))
+        return indices
 
-</head>
-
-<body class="edit_app "
- 
-data-base-url="/"
-data-file-path="home/data_loader.py"
-
-  
- 
-
-dir="ltr">
-
-<noscript>
-    <div id='noscript'>
-      Jupyter Notebook requires JavaScript.<br>
-      Please enable it to proceed. 
-  </div>
-</noscript>
-
-<div id="header" role="navigation" aria-label="Top Menu">
-  <div  id="newsId" style="display: none">
-    
-  </div>
-  <div id="header-container" class="container">
-  <div id="ipython_notebook" class="nav navbar-brand"><a href="/tree" title='dashboard'>
-      <img src='/static/base/images/logo.png?v=a2a176ee3cee251ffddf5fa21fe8e43727a9e5f87a06f9c91ad7b776d9e9d3d5e0159c16cc188a3965e00375fb4bc336c16067c688f5040c0c2d4bfdb852a9e4' alt='Jupyter Notebook'/>
-  </a></div>
-
-  
-
-<span id="save_widget" class="pull-left save_widget">
-    <span class="filename"></span>
-    <span class="last_modified"></span>
-</span>
-
-
-  
-
-  
-  
-  
-  
-
-    <span id="login_widget">
-      
-    </span>
-
-  
-
-  
-  
-  </div>
-  <div class="header-bar"></div>
-
-  
-
-<div id="menubar-container" class="container">
-  <div id="menubar">
-    <div id="menus" class="navbar navbar-default" role="navigation">
-      <div class="container-fluid">
-          <p  class="navbar-text indicator_area">
-          <span id="current-mode" >current mode</span>
-          </p>
-        <button type="button" class="btn btn-default navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-          <i class="fa fa-bars"></i>
-          <span class="navbar-text">Menu</span>
-        </button>
-        <ul class="nav navbar-nav navbar-right">
-          <li id="notification_area"></li>
-        </ul>
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">File</a>
-              <ul id="file-menu" class="dropdown-menu">
-                <li id="new-file"><a href="#">New</a></li>
-                <li id="save-file"><a href="#">Save</a></li>
-                <li id="rename-file"><a href="#">Rename</a></li>
-                <li id="download-file"><a href="#">Download</a></li>
-              </ul>
-            </li>
-            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit</a>
-              <ul id="edit-menu" class="dropdown-menu">
-                <li id="menu-find"><a href="#">Find</a></li>
-                <li id="menu-replace"><a href="#">Find &amp; Replace</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Key Map</li>
-                <li id="menu-keymap-default"><a href="#">Default<i class="fa"></i></a></li>
-                <li id="menu-keymap-sublime"><a href="#">Sublime Text<i class="fa"></i></a></li>
-                <li id="menu-keymap-vim"><a href="#">Vim<i class="fa"></i></a></li>
-                <li id="menu-keymap-emacs"><a href="#">emacs<i class="fa"></i></a></li>
-              </ul>
-            </li>
-            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">View</a>
-              <ul id="view-menu" class="dropdown-menu">
-              <li id="toggle_header" title="Show/Hide the logo and notebook title (above menu bar)">
-              <a href="#">Toggle Header</a></li>
-              <li id="menu-line-numbers"><a href="#">Toggle Line Numbers</a></li>
-              </ul>
-            </li>
-            <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Language</a>
-              <ul id="mode-menu" class="dropdown-menu">
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="lower-header-bar"></div>
-
-
-</div>
-
-<div id="site">
-
-
-<div id="texteditor-backdrop">
-<div id="texteditor-container" class="container"></div>
-</div>
-
-
-</div>
-
-
-
-
-
-
-    
-
-
-<script src="/static/edit/js/main.min.js?v=e0042c0d539a8219218d83395056db19eeba104af064b6abac688381af3f508ff7086aaa146696f73086a76271ff3171db5332e8a3ab863fd52a697de73dfc0d" type="text/javascript" charset="utf-8"></script>
-
-
-<script type='text/javascript'>
-  function _remove_token_from_url() {
-    if (window.location.search.length <= 1) {
-      return;
-    }
-    var search_parameters = window.location.search.slice(1).split('&');
-    for (var i = 0; i < search_parameters.length; i++) {
-      if (search_parameters[i].split('=')[0] === 'token') {
-        // remote token from search parameters
-        search_parameters.splice(i, 1);
-        var new_search = '';
-        if (search_parameters.length) {
-          new_search = '?' + search_parameters.join('&');
-        }
-        var new_url = window.location.origin + 
-                      window.location.pathname + 
-                      new_search + 
-                      window.location.hash;
-        window.history.replaceState({}, "", new_url);
-        return;
-      }
-    }
-  }
-  _remove_token_from_url();
-  sys_info = {"notebook_version": "6.5.6", "notebook_path": "/opt/conda/lib/python3.10/site-packages/notebook", "commit_source": "", "commit_hash": "", "sys_version": "3.10.11 (main, Apr 20 2023, 19:02:41) [GCC 11.2.0]", "sys_executable": "/opt/conda/bin/python3", "sys_platform": "linux", "platform": "Linux-5.15.154+-x86_64-with-glibc2.31", "os_name": "posix", "default_encoding": "utf-8"};
-  document.addEventListener('DOMContentLoaded', function () {
-    const newsId = document.querySelector('#newsId');
-    const dontShowId = document.querySelector('#dontShowId');
-    const showNotebookNews = localStorage.getItem('showNotebookNews');
-    dontShowId.addEventListener('click', () => {
-      localStorage.setItem('showNotebookNews', false);
-      newsId.style.display = 'none';
-    });
-    if (!showNotebookNews) newsId.style.display = 'inline';
-  });
-</script>
-</body>
-
-</html>
+    def __len__(self):
+        if self.mode == 'train':
+            return len(self.ids)
+        else:
+            return len(self.paths)
