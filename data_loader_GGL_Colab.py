@@ -9,7 +9,7 @@ import numpy as np
 from tqdm import tqdm
 import random
 import json
-unzip_Path = '/coco'
+unzip_Path = 'coco'
 
 def get_loader(transform,
                mode='train',
