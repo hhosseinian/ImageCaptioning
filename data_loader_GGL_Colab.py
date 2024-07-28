@@ -46,7 +46,7 @@ def get_loader(transform,
         if vocab_from_file==True: assert os.path.exists(vocab_file), "vocab_file does not exist.  Change vocab_from_file to False to create vocab_file."
         img_folder = os.path.join(unzip_Path, '/train2014/')
         #annotations_file = os.path.join('coco/annotations/captions_train2014.json')
-        annotations_file = os.path.join(unzip_Path, '/annotations/captions_train2014.json')
+        annotations_file = os.path.join('coco/annotations/captions_train2014.json')
     if mode == 'test':
         assert batch_size==1, "Please change batch_size to 1 if testing your model."
         assert os.path.exists(vocab_file), "Must first generate vocab.pkl from training data."
