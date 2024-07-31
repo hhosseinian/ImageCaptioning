@@ -52,7 +52,7 @@ def get_loader(transform,
         assert os.path.exists(vocab_file), "Must first generate vocab.pkl from training data."
         assert vocab_from_file==True, "Change vocab_from_file to True."
         img_folder = os.path.join('/coco/test2014/')
-        annotations_file = os.path.join(unzip_Path, '/image_info_test2014.json')
+        annotations_file = os.path.join('/coco/train2014/image_info_test2014.json')
 
     # COCO caption dataset.
     dataset = CoCoDataset(transform=transform,
