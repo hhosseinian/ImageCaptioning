@@ -60,23 +60,21 @@ To train the network, follow these steps:
 ### Inference
 
 To see the model in action:
-
-    - 3_Inference.ipynb:
-        Use the trained model to generate captions for images in the test dataset.
-        Evaluate model performance by comparing generated captions to the actual captions.
+- 3_Inference.ipynb:
+  Use the trained model to generate captions for images in the test dataset.
+  Evaluate model performance by comparing generated captions to the actual captions.
 
 Steps for inference:
-
-    - Load the trained model.
-    - Pass a test image through the model to generate a caption.
-    - Compare the generated caption with the actual caption to evaluate performance.
+- Load the trained model.
+- Pass a test image through the model to generate a caption.
+- Compare the generated caption with the actual caption to evaluate performance.
 
 
 
 ## Results (Under revision)
-  - provide results for your specific example.
-  - provide results when you change different hyperparameters
-  - Refer to some other projects from other githubs
+- provide results for your specific example.
+- provide results when you change different hyperparameters
+- Refer to some other projects from other githubs
 
 
 ## Troubleshooting
